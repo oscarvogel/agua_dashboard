@@ -40,6 +40,33 @@ Este paso valida tests, check de Django, build frontend, paquete de sincronizaci
 
 ## Despliegue en Linux
 
+### Opcion recomendada: deploy desde GitHub
+
+Ejecutar en el servidor, desde `/home/ferreteria/agua_dashboard_test`:
+
+```bash
+bash deploy.sh
+```
+
+El script:
+
+- actualiza `main` desde GitHub con `git pull --ff-only`;
+- no crea ni sobrescribe `.env`;
+- instala/actualiza dependencias Python;
+- ejecuta `backend/manage.py check`;
+- omite migraciones salvo `RUN_MIGRATIONS=1`;
+- compila el frontend Vue/Vite;
+- reinicia `agua-dashboard.service`;
+- valida `https://agua.vogelconsultoria.com.ar/api/health/`.
+
+Si el cambio requiere migraciones:
+
+```bash
+RUN_MIGRATIONS=1 bash deploy.sh
+```
+
+### Opcion de instalacion de release
+
 1. Copiar el release validado al servidor.
 2. Descomprimirlo en `/home/ferreteria/agua_dashboard_test`.
 3. Confirmar que el `.env` productivo existe en el servidor y no fue sobrescrito.
