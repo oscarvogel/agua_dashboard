@@ -32,6 +32,16 @@ class HealthView(APIView):
             return {"state": "error", "message": f"Base Django no disponible ({exc.__class__.__name__})"}
 
     @staticmethod
+    def check_auth_schema() -> dict:
+        try:
+            tables = set(connection.introspection.table_names())
+        except Exception as exc:
+            return {"state": "error", "message": f"No se pudo inspeccionar el esquema Django ({exc.__class__.__name__})"}
+        if "auth_user" not in tables:
+            return {"state": "error", "message": "Falta tabla auth_user; ejecutar migraciones Django"}
+        return {"state": "ok", "message": "Esquema de usuarios disponible"}
+
+    @staticmethod
     def overall_status(checks: dict) -> str:
         states = [str(check.get("state", "ok")) for check in checks.values()]
         if "error" in states:
@@ -45,6 +55,7 @@ class HealthView(APIView):
         checks = {
             "application": {"state": "ok", "message": "Aplicacion disponible"},
             "django_database": self.check_django_database(),
+            "django_auth_schema": self.check_auth_schema(),
             "mysql": check_mysql_connection()
             if database_configured
             else {"state": "skipped", "message": "Base MySQL VPS no configurada", "configured": False},

@@ -44,6 +44,10 @@ check_url() {
   curl --fail --silent --show-error --max-time 20 "$url" >"$output_file"
 }
 
+django_auth_schema_ready() {
+  .venv/bin/python backend/manage.py shell -c "from django.db import connection; raise SystemExit(0 if 'auth_user' in connection.introspection.table_names() else 1)" >/dev/null 2>&1
+}
+
 echo "==> Actualizando codigo desde GitHub"
 git fetch origin "$BRANCH"
 git checkout "$BRANCH"
@@ -62,10 +66,13 @@ echo "==> Verificando backend"
 .venv/bin/python backend/manage.py check
 
 if [[ "$RUN_MIGRATIONS" == "1" ]]; then
-  echo "==> Ejecutando migraciones"
+  echo "==> Ejecutando migraciones (RUN_MIGRATIONS=1)"
   .venv/bin/python backend/manage.py migrate --noinput
+elif django_auth_schema_ready; then
+  echo "==> Migraciones omitidas (RUN_MIGRATIONS=0, esquema Django existente)"
 else
-  echo "==> Migraciones omitidas (RUN_MIGRATIONS=0)"
+  echo "==> Faltan tablas Django; ejecutando migraciones iniciales"
+  .venv/bin/python backend/manage.py migrate --noinput
 fi
 
 if [[ -f "frontend/package.json" ]]; then

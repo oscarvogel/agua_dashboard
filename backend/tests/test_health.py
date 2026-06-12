@@ -50,6 +50,7 @@ class HealthViewTests(TestCase):
         assert response.data["database_configured"] is True
         assert response.data["checks"]["application"]["state"] == "ok"
         assert response.data["checks"]["django_database"]["state"] == "ok"
+        assert response.data["checks"]["django_auth_schema"]["state"] == "ok"
         assert response.data["checks"]["mysql"]["state"] == "ok"
         assert response.data["checks"]["sync"]["state"] == "ok"
         check_mysql_connection.assert_called_once_with()
@@ -79,6 +80,33 @@ class HealthViewTests(TestCase):
             "configured": False,
         }
         assert response.data["checks"]["sync"]["state"] == "warning"
+        check_mysql_connection.assert_not_called()
+
+    @patch("dashboard_api.views.connection")
+    @patch("dashboard_api.views.latest_sync_status")
+    @patch("dashboard_api.views.check_mysql_connection")
+    @patch("dashboard_api.views.has_vps_config")
+    def test_health_returns_503_when_auth_user_table_is_missing(
+        self,
+        has_vps_config,
+        check_mysql_connection,
+        latest_sync_status,
+        connection,
+    ):
+        has_vps_config.return_value = False
+        latest_sync_status.return_value = {"state": "ok", "message": "Sincronizacion correcta", "tables": []}
+        connection.ensure_connection.return_value = None
+        connection.introspection.table_names.return_value = []
+
+        response = self.view(self.factory.get("/api/health/"))
+
+        assert response.status_code == 503
+        assert response.data["ok"] is False
+        assert response.data["status"] == "error"
+        assert response.data["checks"]["django_auth_schema"] == {
+            "state": "error",
+            "message": "Falta tabla auth_user; ejecutar migraciones Django",
+        }
         check_mysql_connection.assert_not_called()
 
     @patch("dashboard_api.views.latest_sync_status")
