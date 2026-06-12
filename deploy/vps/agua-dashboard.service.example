@@ -1,0 +1,15 @@
+[Unit]
+Description=Agua Dashboard Django API
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/home/ferreteria/agua_dashboard_test
+EnvironmentFile=/home/ferreteria/agua_dashboard_test/.env
+ExecStart=/home/ferreteria/agua_dashboard_test/.venv/bin/gunicorn dashboard_project.wsgi:application --chdir /home/ferreteria/agua_dashboard_test/backend --bind 127.0.0.1:8010 --workers 3 --timeout 90
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

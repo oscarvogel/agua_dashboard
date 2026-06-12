@@ -1,0 +1,67 @@
+project:
+  internal_name: agua-dashboard
+  display_name: Agua Dashboard Cooperativa Garuhape-Mi
+  client: Cooperativa Aguas y Servicios Publicos Garuhape-Mi
+  priority: baja
+
+repository:
+  url: https://github.com/oscarvogel/agua_dashboard
+  production_branch: main
+
+runtime:
+  backend:
+    framework: Django REST Framework
+    entrypoint: backend/manage.py
+    wsgi: dashboard_project.wsgi:application
+    internal_url: http://127.0.0.1:8010
+    api_base_internal: http://127.0.0.1:8010/api/
+  frontend:
+    framework: Vue + Vite
+    source_dir: frontend
+    build_dir: frontend/dist
+    build_required_on_deploy: true
+  database:
+    django_default: SQLite
+    mirror: MySQL or MariaDB via VPS_MYSQL_* environment variables
+    sync_status_table: dashboard_sync_status
+
+production:
+  public_url: https://agua.vogelconsultoria.com.ar
+  health_url: https://agua.vogelconsultoria.com.ar/api/health/
+  linux_path: /home/ferreteria/agua_dashboard_test
+  systemd_service: agua-dashboard.service
+  backend_behind_api_prefix: true
+  api_prefix: /api/
+  internal_port: 8010
+
+health_check:
+  path: /api/health/
+  validates:
+    application: true
+    django_database: true
+    mysql_when_configured: true
+    sync_status: true
+  success_http_status: 200
+  failure_http_status: 503
+
+alerts:
+  telegram: true
+  email: true
+  recipients_source: external_monitoring_configuration
+
+commands:
+  tests_windows: .\.venv\Scripts\python.exe -m pytest
+  django_check_windows: .\.venv\Scripts\python.exe backend\manage.py check
+  frontend_build: npm run build
+  deploy_manual_linux: bash deploy/vps/install_release_linux.sh
+  smoke_api_windows: powershell -ExecutionPolicy Bypass -File .\scripts\smoke_dashboard.ps1 -ApiBase https://agua.vogelconsultoria.com.ar/api
+
+deploy_policy:
+  automatic_deploy_enabled: false
+  migrations_required_every_deploy: false
+  collectstatic_required: false
+  frontend_build_required: true
+  touch_env_file: false
+  restart_services_manually_after_validation: true
+  nginx_changes_require_manual_review: true
+  secrets_location: environment_or_env_file_outside_version_control
