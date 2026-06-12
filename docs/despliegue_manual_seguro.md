@@ -55,9 +55,10 @@ El script:
 - instala/actualiza dependencias Python;
 - ejecuta `backend/manage.py check`;
 - omite migraciones salvo `RUN_MIGRATIONS=1`;
-- compila el frontend Vue/Vite;
+- compila el frontend Vue/Vite y publica `frontend/dist` como `frontend_dist`, que es el directorio servido por Nginx;
 - reinicia `agua-dashboard.service`;
-- valida `https://agua.vogelconsultoria.com.ar/api/health/`.
+- valida `https://agua.vogelconsultoria.com.ar/api/health/`;
+- valida tambien la home `https://agua.vogelconsultoria.com.ar/`, porque la API puede estar sana aunque el frontend servido por Nginx este roto.
 
 Si el cambio requiere migraciones:
 

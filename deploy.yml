@@ -36,11 +36,13 @@ production:
 
 health_check:
   path: /api/health/
+  public_url_check: https://agua.vogelconsultoria.com.ar/
   validates:
     application: true
     django_database: true
     mysql_when_configured: true
     sync_status: true
+    frontend_home: true
   success_http_status: 200
   failure_http_status: 503
 
