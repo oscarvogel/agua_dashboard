@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-05-29T15:39:57",
+  "schema": "agua",
+  "server_info": {
+    "version": "8.0.36",
+    "database_name": "agua"
+  },
+  "table_count": 42,
+  "column_count": 358,
+  "suggestions": [
+    "Facturacion: evolucion mensual, importes por tipo de comprobante, servicios/familias facturadas.",
+    "Cuenta corriente: saldos, deuda vencida, antiguedad de deuda, clientes con mayor saldo.",
+    "Consumos: evolucion por periodo, conexiones sin lectura, consumos cero, saltos anormales.",
+    "Conexiones: altas/bajas, estado del padron, distribucion por zona/tipo de servicio.",
+    "Clientes/socios: padron activo, segmentacion por zona, titularidad y datos incompletos.",
+    "Caja/cobranzas: ingresos por fecha, medios/conceptos, conciliacion operativa.",
+    "Pendientes de facturacion: volumen pendiente, antiguedad y riesgo operativo.",
+    "Articulos/proveedores: inventario o items facturables si aplican a la operatoria.",
+    "Mapa ejecutivo: capas geograficas disponibles en conexiones."
+  ]
+}

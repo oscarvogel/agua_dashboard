@@ -1,0 +1,115 @@
+AGENTE DE SINCRONIZACION - COOPERATIVA AGUA
+
+Instalar en una computadora dentro de la cooperativa, con acceso a la base MySQL local.
+
+SI LA MAQUINA ES WINDOWS 7:
+
+SI EL PAQUETE INCLUYE sync.exe:
+
+1. Ejecutar INSTALAR_WIN7_COMPLETO.bat
+   - Usa sync.exe incluido en el paquete.
+   - No instala Python ni requiere internet.
+   - Copia el agente a C:\agua-dashboard-sync-agent.
+   - Crea la tarea AguaDashboardSync con schtasks.exe.
+
+2. Completar C:\agua-dashboard-sync-agent\.env cuando se abra Notepad.
+
+3. Desde C:\agua-dashboard-sync-agent ejecutar:
+   - VERIFICAR.bat
+   - SINCRONIZAR.bat
+
+SI PYTHON YA ESTA INSTALADO:
+
+1. Ejecutar INSTALAR_WINDOWS7.bat
+   - Copia el agente a C:\agua-dashboard-sync-agent.
+   - Instala dependencias.
+   - Crea la tarea AguaDashboardSync con schtasks.exe.
+   - La tarea corre cada 60 minutos en forma silenciosa.
+
+2. Completar C:\agua-dashboard-sync-agent\.env cuando se abra Notepad.
+
+3. Desde C:\agua-dashboard-sync-agent ejecutar:
+   - VERIFICAR.bat
+   - SINCRONIZAR.bat
+
+4. Revisar C:\agua-dashboard-sync-agent\logs\sync y confirmar status: ok.
+
+5. Para ver la tarea:
+   - VER_TAREA_WINDOWS7.bat
+
+MODO SIMPLE SIN PYTHON, POR DUMP MYSQL:
+
+Si se prefiere copiar tablas completas de local a VPS:
+
+1. Instalar el cliente MySQL en la PC o ubicar donde estan:
+   - mysqldump.exe
+   - mysql.exe
+
+2. Completar en .env:
+   - COOP_MYSQL_*
+   - VPS_MYSQL_*
+   - MYSQL_BIN_DIR si mysql.exe no esta en PATH
+   - SIMPLE_SYNC_TABLES con las tablas a reemplazar
+
+3. Probar manualmente:
+   - SINCRONIZAR_DUMP.bat
+   - Este acceso deja la ventana abierta para ver errores.
+   - Internamente llama a sync_dump_to_vps.bat.
+
+4. Si funciona, programar cada hora en Windows 7:
+   - PROGRAMAR_DUMP_WINDOWS7.bat
+
+Este modo reemplaza tablas completas en el VPS. Es mas simple, pero no normaliza fechas ni tipos como el sincronizador Python.
+
+MODO RECOMENDADO SI sync.exe NO ABRE EN WINDOWS 7:
+
+Usar el modo CLI MySQL. No usa Python, no usa sync.exe y no usa mysqldump.exe.
+Necesita solamente mysql.exe.
+
+1. Instalar o ubicar el cliente MySQL:
+   - mysql.exe
+
+2. Completar en .env:
+   - COOP_MYSQL_*
+   - VPS_MYSQL_*
+   - MYSQL_BIN_DIR si mysql.exe no esta en PATH
+   - MYSQL_CHARSET=utf8 si el cliente MySQL es viejo
+
+3. Probar manualmente:
+   - SINCRONIZAR_CLI.bat
+   - Este acceso deja la ventana abierta para ver errores.
+   - Los logs quedan en logs\cli_sync.
+
+4. Si funciona, programar cada hora en Windows 7:
+   - PROGRAMAR_CLI_WINDOWS7.bat
+
+Este modo copia solo las columnas que usa el dashboard y limpia fechas invalidas basicas.
+No usa LOAD DATA LOCAL INFILE, asi que funciona aunque esa opcion este deshabilitada en el VPS.
+
+Pasos:
+
+1. Ejecutar CONFIGURAR_ENV.bat
+   - Se crea .env si no existe.
+   - Completar credenciales de la base local y del VPS.
+   - Guardar y cerrar Notepad.
+
+2. Ejecutar INSTALAR.bat
+   - Crea el entorno Python.
+   - Instala dependencias.
+
+3. Ejecutar VERIFICAR.bat
+   - Debe terminar sin error.
+   - Si falla, revisar credenciales, red o Python.
+
+4. Ejecutar SINCRONIZAR.bat
+   - Hace una sincronizacion real.
+   - Revisar logs\sync y confirmar status: ok.
+
+5. Ejecutar PROGRAMAR_TAREA.bat
+   - Programa la sincronizacion automatica cada 60 minutos desde las 08:00.
+
+Archivos importantes:
+
+- .env: credenciales reales. No compartir.
+- logs\sync: resultado JSON de cada corrida.
+- README.md: instrucciones completas.
