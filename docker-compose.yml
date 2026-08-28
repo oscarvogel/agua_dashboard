@@ -1,0 +1,38 @@
+services:
+  agua_backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: agua-dashboard-backend:latest
+    restart: unless-stopped
+    env_file:
+      - /srv/fasa-data/data/agua-dashboard/agua.env
+    volumes:
+      - /srv/fasa-data/data/agua-dashboard/db.sqlite3:/app/backend/db.sqlite3
+    expose:
+      - "8000"
+    healthcheck:
+      test:
+        ["CMD", "python", "-c", "import json, urllib.request; data=json.load(urllib.request.urlopen('http://127.0.0.1:8000/api/health/', timeout=5)); raise SystemExit(0 if data.get('ok') is not False else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  agua_frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: agua-dashboard-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      agua_backend:
+        condition: service_healthy
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
