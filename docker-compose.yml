@@ -5,10 +5,9 @@ services:
       dockerfile: backend/Dockerfile
     image: agua-dashboard-backend:latest
     restart: unless-stopped
-    env_file:
-      - /srv/fasa-data/data/agua-dashboard/agua.env
     volumes:
       - /srv/fasa-data/data/agua-dashboard/db.sqlite3:/app/backend/db.sqlite3
+      - /srv/fasa-data/data/agua-dashboard/agua.env:/run/secrets/agua.env:ro
     expose:
       - "8000"
     healthcheck:
