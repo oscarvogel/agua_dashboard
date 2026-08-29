@@ -8,6 +8,7 @@ services:
     volumes:
       - /srv/fasa-data/data/agua-dashboard/db.sqlite3:/app/backend/db.sqlite3
       - /srv/fasa-data/data/agua-dashboard/agua.env:/run/secrets/agua.env:ro
+      - /srv/fasa-data/data/agua-dashboard/logs:/app/logs
     expose:
       - "8000"
     healthcheck:
